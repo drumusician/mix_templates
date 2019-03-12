@@ -579,7 +579,14 @@ end
           copy_dir(source, dest, assigns)
         end
       else
-        copy_and_expand(source, dest, assigns)
+        ext = Path.extname(source)
+        img_regex = ~r/(\.png|\.jpg|\.ico)/
+        cond do
+          String.match?(ext, img_regex) ->
+            copy(source, dest)
+          true ->
+            copy_and_expand(source, dest, assigns)
+        end
       end
     end
 
@@ -601,6 +608,12 @@ end
       end
     end
 
+    def copy(source, dest) do
+      File.cp(source, dest)
+      mode = File.stat!(source).mode
+      File.chmod!(dest, mode)
+    end
+
     defp copy_and_expand(source, dest, assigns) do
       try do
         content = EEx.eval_file(source, assigns, [ trim: true ])
@@ -613,6 +626,10 @@ end
                           :reset, " #{dest} ",
                           :faint, :cyan, "(it isn't needed)"])
       end
+    end
+
+    defp file_extension(source) do
+      String.split(source, ".") |> List.last()
     end
 
     defp mandatory_option(nil,    msg), do: raise(CompileError, description: msg)

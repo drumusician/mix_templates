@@ -13,7 +13,7 @@ defmodule Mix.Tasks.Template.Install do
     @moduledoc """
     Define naming conventions for template targets
     """
-    
+
     def name_for(project) do
       project[:app]
       |> to_string()
