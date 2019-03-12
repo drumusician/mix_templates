@@ -636,7 +636,7 @@ end
     defp mandatory_option(value, _msg), do: value
 
 
-    # You can escape the projrct name by doubling the $ characters,
+    # You can escape the project name by doubling the $ characters,
     # so $$PROJECT_NAME$$ becomes $PROJECT_NAME$
     defp dest_file_name(name, assigns) do
       if name =~ ~r{\$\$PROJECT_NAME\$\$} do
