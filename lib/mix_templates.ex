@@ -1,5 +1,7 @@
 defmodule MixTemplates do
 
+@img_regex ~r/(png|jpg|ico)/
+
 @moduledoc ~S"""
 
 > NOTE: This documentation is intended for folks who want to write
@@ -579,10 +581,8 @@ end
           copy_dir(source, dest, assigns)
         end
       else
-        ext = Path.extname(source)
-        img_regex = ~r/(\.png|\.jpg|\.ico)/
         cond do
-          String.match?(ext, img_regex) ->
+          String.match?(Path.extname(source), @img_regex) ->
             copy(source, dest)
           true ->
             copy_and_expand(source, dest, assigns)
