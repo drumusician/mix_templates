@@ -1,5 +1,7 @@
 defmodule MixTemplates do
 
+@img_regex ~r/(png|jpg|ico)/
+
 @moduledoc ~S"""
 
 > NOTE: This documentation is intended for folks who want to write
@@ -574,12 +576,18 @@ end
 
 
     defp copy_tree_with_expansions(source, dest, assigns) do
+      Mix.shell.info([:green, "• processing #{source}"])
       if File.dir?(source) do
         if !String.ends_with?(source, "_build") do
           copy_dir(source, dest, assigns)
         end
       else
-        copy_and_expand(source, dest, assigns)
+        cond do
+          String.match?(Path.extname(source), @img_regex) ->
+            copy(source, dest)
+          true ->
+            copy_and_expand(source, dest, assigns)
+        end
       end
     end
 
@@ -601,6 +609,12 @@ end
       end
     end
 
+    def copy(source, dest) do
+      File.cp(source, dest)
+      mode = File.stat!(source).mode
+      File.chmod!(dest, mode)
+    end
+
     defp copy_and_expand(source, dest, assigns) do
       try do
         content = EEx.eval_file(source, assigns, [ trim: true ])
@@ -615,11 +629,15 @@ end
       end
     end
 
+    defp file_extension(source) do
+      String.split(source, ".") |> List.last()
+    end
+
     defp mandatory_option(nil,    msg), do: raise(CompileError, description: msg)
     defp mandatory_option(value, _msg), do: value
 
 
-    # You can escape the projrct name by doubling the $ characters,
+    # You can escape the project name by doubling the $ characters,
     # so $$PROJECT_NAME$$ becomes $PROJECT_NAME$
     defp dest_file_name(name, assigns) do
       if name =~ ~r{\$\$PROJECT_NAME\$\$} do
