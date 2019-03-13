@@ -576,6 +576,7 @@ end
 
 
     defp copy_tree_with_expansions(source, dest, assigns) do
+      Mix.shell.info([:green, "• processing #{source}"])
       if File.dir?(source) do
         if !String.ends_with?(source, "_build") do
           copy_dir(source, dest, assigns)
